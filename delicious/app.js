@@ -24,6 +24,7 @@ app.set('view engine', 'pug'); // we use the engine pug, mustache or EJS work gr
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Takes the raw requests and turns them into usable properties on req.body
+// Eg form fields available on req object after submitted
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -51,6 +52,7 @@ app.use(passport.session());
 app.use(flash());
 
 // pass variables to our templates + all requests
+// All templkates have these available
 app.use((req, res, next) => {
   res.locals.h = helpers;
   res.locals.flashes = req.flash(); // adds flashes to 'locals'. Vars in the template.

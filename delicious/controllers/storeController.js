@@ -5,21 +5,21 @@ const Store = mongoose.model('Store');
 
 // Example controller
 exports.myMiddleware = (req, res, next) => {
-    req.name = 'martin';
-    req.thing = 'yo';
-    // Move on to next function at te point of user.
+    req.name = 'martin'; 
+    
+    // Move on to next function at th point of user.
     // Run code after request, but before response.
-
+    
     if ( req.name === 'martin' ) {
-         throw new Error('that is stupid');
+       //throw new Error('that is a bad name'); 
     }
+    res.cookie('name', 'added by middleware', { maxAge: 900000 } )
     // Passes on to next function in router.get (below)
     next();
 }
 
 exports.homePage = (req, res) => {
-    res.cookie('name', 'martin', { maxAge: 90000 });
-
+    console.log(req.name);
     req.flash('info', 'Info here!');
     req.flash('warning', 'warning here!');
     req.flash('error', 'Error here!');
@@ -36,6 +36,11 @@ exports.addStore = (req, res) => {
 
 // nominate a error-handling function
 
+exports.user = (req, res) => { 
+    res.render('user', { title: 'You\'re a user' }); 
+    console.log(res)
+    //console.table(req)
+}
 
 // functions can be specified as async, then marked as 'await' to pause execution
 
