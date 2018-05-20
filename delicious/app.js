@@ -53,7 +53,7 @@ app.use(flash());
 // pass variables to our templates + all requests
 app.use((req, res, next) => {
   res.locals.h = helpers;
-  res.locals.flashes = req.flash();
+  res.locals.flashes = req.flash(); // adds flashes to 'locals'. Vars in the template.
   res.locals.user = req.user || null;
   res.locals.currentPath = req.path;
   next();
