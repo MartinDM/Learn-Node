@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 div
 
     - const upName = name.toUpperCase();
@@ -18,3 +19,26 @@ div
 
 // Footer here
 
+=======
+div
+
+    - const upName = name.toUpperCase();
+    - const pet = petName ? petName : 'No Pet';
+
+    p#intro Hello,  #{upName}
+    span.test you
+    img.dog(src="dog.jpg" alt=`Dog ${pet} ` ) 
+    h4
+        | All the h2 content here
+        em Like this
+    
+    h3 Your age is #{age}
+    
+
+    // No classes indicates a div
+    // Run JS inside the template (string/array methods etc)
+    // Attributes use dollar signs and ES6 tpl literal instead of hash to get variables into template
+
+// Footer here
+
+>>>>>>> 576558d0fa5e3eaf200e93abd795711e6cfdc4e6
