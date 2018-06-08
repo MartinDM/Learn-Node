@@ -1,72 +1,41 @@
 const mongoose = require('mongoose');
 const Store = mongoose.model('Store');
-// Anything on exports is import-able into another file
-// Middleware runs before routes.
-
-// Example controller
-exports.myMiddleware = (req, res, next) => {
-    req.name = 'martin';
-    req.thing = 'yo';
-    // Move on to next function at te point of user.
-    // Run code after request, but before response.
-
-    if ( req.name === 'martin' ) {
-         throw new Error('that is stupid');
-    }
-    // Passes on to next function in router.get (below)
-    next();
-}
 
 exports.homePage = (req, res) => {
-    res.cookie('name', 'martin', { maxAge: 90000 });
-
-    req.flash('info', 'Info here!');
-    req.flash('warning', 'warning here!');
-    req.flash('error', 'Error here!');
-    req.flash('error', 'Error 2 here!');
-    req.flash('success', 'Success here!');
-    res.render('index');
-}
+  console.log('test');
+  req.flash('success', `You're on the homepage`)
+  res.render('index');
+};
 
 exports.addStore = (req, res) => {
-    res.render('editStore', { title: 'Add store' })
-}
-// nominate a error-handling function
+   res.render('editStore', { title: 'Add Store' });
+};
 
-
-// functions can be specified as async, then marked as 'await' to pause execution
-
-// req.body is the posted data from the form
+// Async means there's no callbacks or using .then.
+// async tells the 'await' function to wait for the save
 exports.createStore = async (req, res) => {
-    /* outputs json:
-         console.log(req.body)
-         res.json(req.body) */
-    // Object has all our schema props in it. 
-    const store = new Store(req.body);
-    
-    await store.save();
-    // returns a Promise 
-    console.log('saved!');
+  const store = await ( new Store(req.body) ).save();
+  // Flash style, plus message
+  req.flash('success', `Successfully Created ${store.name}. Leave a review?`);
+  // only redirect once we have the store's slug form the awaited function above
+  res.redirect(`/store/${store.slug}`);
+};
 
-    req.flash('success', 'Added ${store.name}. Add another?');
-    res.redirect('/');
+exports.getStores = async (req, res) => {
+  // Query db for list of stores
+  const stores = await Store.find();
+  res.render('stores', { title: 'Stores', stores })
+};
 
-    // then(store => {
-    //     return Store.find();
-    // })
-    // .then(stores => {
-    //     return Promise;
-    // })
-    // .catch(err => {
-    //     throw Error;
-    // }) 
-     
-    /* JS is asynchronous by default
-         save can take time, but code will keep executing.
-        Confirmation needs to know if it saved or not!
-    */
-}
+exports.editStore = async (req,res) => {
+  
+  // find the store from the id
+  //res.json(req.params);
+  const store = await Store.findOne( { _id: req.params.id });
+  console.log(store)
+  // confirm store owner
+   
+  // Render edit form so store can be edited
+  res.render('editStore', { title: `Edit ${store.name}`, store } );
 
-// Using COMPOSITION
-// Wrapping a function inside a function inside an error handler
- 
+};
