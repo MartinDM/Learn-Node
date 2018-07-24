@@ -28,14 +28,30 @@ exports.getStores = async (req, res) => {
 };
 
 exports.editStore = async (req,res) => {
-  
-  // find the store from the id
+  // Find the store from the id
   //res.json(req.params);
   const store = await Store.findOne( { _id: req.params.id });
   console.log(store)
-  // confirm store owner
+  // Confirm store owner
    
   // Render edit form so store can be edited
   res.render('editStore', { title: `Edit ${store.name}`, store } );
-
 };
+
+exports.updateStore = async (req, res) => {
+  // find and update store. Await it.
+  const store = await Store.findOneAndUpdate({
+    _id: req.params.id }, // select the record
+    req.body, // data to update it with
+    // Options from Mongoose Model API
+    { 
+      new: true,
+      runValidators: true, // ensure the update matches the model's schema
+    }).exec(); // Run the query
+
+  req.flash('success', `Successfully Edited ${store.name}.
+        <a href="./stores/${store.slug}">View Store</a>`);
+  // redirect to store with flash
+  res.redirect(`/stores/${store._id}/edit`);
+
+}
