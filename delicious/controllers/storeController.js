@@ -1,5 +1,20 @@
 const mongoose = require('mongoose');
 const Store = mongoose.model('Store');
+const multer = require('multer');
+const multerOpts = {
+  dest: 'uploads/',
+  storage: multer.memoryStorage(),
+  fileFilter(req, file, next){
+    const isPhoto = file.mimetype == 'JPG'
+    if (isPhoto) {
+      // calling next with null. First is an error, second is the data to pass
+      next(null, true) 
+    } else {
+      next( {message: 'That file type is not allowed'}, false )
+    }
+  }
+
+};
 
 exports.homePage = (req, res) => {
   console.log('test');
@@ -21,6 +36,12 @@ exports.createStore = async (req, res) => {
   res.redirect(`/store/${store.slug}`);
 };
 
+// Test submission  - shows data in template
+exports.testData = async (req,res) => { 
+  const { name, description } = await req.body;
+  res.render('test', { name, description, ...req.body } )
+};
+
 exports.getStores = async (req, res) => {
   // Query db for list of stores
   const stores = await Store.find();
@@ -38,7 +59,11 @@ exports.editStore = async (req,res) => {
   res.render('editStore', { title: `Edit ${store.name}`, store } );
 };
 
+
 exports.updateStore = async (req, res) => {
+  // On save, set location type to be 'Point' again.
+  req.body.location.type = 'Point';
+
   // find and update store. Await it.
   const store = await Store.findOneAndUpdate({
     _id: req.params.id }, // select the record

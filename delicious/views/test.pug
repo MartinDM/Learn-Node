@@ -1,0 +1,7 @@
+extends layout
+
+block content  
+  p #{name}
+  p #{description}
+  p #{location.address}
+  pre= h.dump(data)
