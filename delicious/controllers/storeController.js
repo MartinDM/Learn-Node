@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
 const Store = mongoose.model('Store');
 const multer = require('multer');
+const jimp = require('jimp');
+const uuid = require('uuid');
 const multerOpts = {
-  dest: 'uploads/',
   storage: multer.memoryStorage(),
   fileFilter(req, file, next){
-    const isPhoto = file.mimetype == 'JPG'
+    const isPhoto = file.mimetype.startsWith('image/')
     if (isPhoto) {
       // calling next with null. First is an error, second is the data to pass
       next(null, true) 
@@ -13,11 +14,26 @@ const multerOpts = {
       next( {message: 'That file type is not allowed'}, false )
     }
   }
-
 };
 
+exports.upload = multer(multerOpts).single('photo');
+
+exports.resize = async(req, res, next) => { 
+  // check if no new file to resize
+  if(!req.file) {
+    next();
+  }
+  const extension = req.file.mimetype.split('/')[1];
+  req.body.photo = `${uuid.v4()}.${extension}`;
+  // resize
+  const photo = await jimp.read(req.file.buffer);
+  await photo.resize(800, jimp.AUTO);
+  await photo.write(`./public/uploads/${req.body.photo}`);
+  next();
+}
+
+
 exports.homePage = (req, res) => {
-  console.log('test');
   req.flash('success', `You're on the homepage`)
   res.render('index');
 };
@@ -52,7 +68,6 @@ exports.editStore = async (req,res) => {
   // Find the store from the id
   //res.json(req.params);
   const store = await Store.findOne( { _id: req.params.id });
-  console.log(store)
   // Confirm store owner
    
   // Render edit form so store can be edited
@@ -78,5 +93,15 @@ exports.updateStore = async (req, res) => {
         <a href="./stores/${store.slug}">View Store</a>`);
   // redirect to store with flash
   res.redirect(`/stores/${store._id}/edit`);
+}
 
+exports.getStoreBySlug = async (req, res, next) => {
+  console.log(req.params);
+  const store = await Store.findOne( { slug: req.params.slug });
+  console.log(store);
+  if(!store) {
+    return next();
+  }
+  
+  res.render('store', { title: store.name, store } );
 }

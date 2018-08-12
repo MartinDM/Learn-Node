@@ -1,8 +1,13 @@
 extends layout
 
 block content
-  .inner
-    h2= title
-    .stores
-      each store in stores
-        +storeCard(store)
+  .single
+    .single__hero
+      img.single__image(src=`/uploads/${store.photo || store.png}`)
+      h2.title.itle--single
+        a(href=`/stores/${store.slug}`) #{store.name}
+  
+  .single__details.inner
+    img.single__map(src=h.staticMap(store.lat, store.lng))
+
+pre=.dump(store)
