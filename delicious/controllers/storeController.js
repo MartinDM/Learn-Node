@@ -5,7 +5,7 @@ const jimp = require('jimp');
 const uuid = require('uuid');
 const multerOpts = {
   storage: multer.memoryStorage(),
-  fileFilter(req, file, next){
+  fileFilter(req, file, next){ 
     const isPhoto = file.mimetype.startsWith('image/')
     if (isPhoto) {
       // calling next with null. First is an error, second is the data to pass
@@ -18,11 +18,13 @@ const multerOpts = {
 
 exports.upload = multer(multerOpts).single('photo');
 
-exports.resize = async(req, res, next) => { 
+exports.resize = async(req, res, next) => {
   // check if no new file to resize
   if(!req.file) {
     next();
-  }
+    return;
+  } 
+  console.log(req.file);
   const extension = req.file.mimetype.split('/')[1];
   req.body.photo = `${uuid.v4()}.${extension}`;
   // resize
@@ -34,7 +36,8 @@ exports.resize = async(req, res, next) => {
 
 
 exports.homePage = (req, res) => {
-  req.flash('success', `You're on the homepage`)
+  const welcomeMessage = req.session.logInSuccess ? `Welcome back` : `On Homepage`;
+  req.flash('success', welcomeMessage )
   res.render('index');
 };
 
@@ -76,6 +79,7 @@ exports.editStore = async (req,res) => {
 
 
 exports.updateStore = async (req, res) => {
+  
   // On save, set location type to be 'Point' again.
   req.body.location.type = 'Point';
 
@@ -96,8 +100,9 @@ exports.updateStore = async (req, res) => {
 }
 
 // Async as we're querying the db
-exports.getStoreBySlug = async (req, res) => {
+exports.getStoreBySlug = async (req, res, next) => {
   const store = await Store.findOne({slug: req.params.slug});
-  //if (!store) return next();
+  if (!store) return next();
+  console.log(store);
   res.render('store', { title: store.name, store } );
 }

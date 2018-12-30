@@ -7,7 +7,6 @@ function autocomplete (input, latInput, lngInput){
         const place = dropdown.getPlace();
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
-
         latInput.value = lat;
         lngInput.value = lng;
     });
@@ -19,6 +18,5 @@ function autocomplete (input, latInput, lngInput){
         }
     })
 }
- 
 
-export default autocomplete 
+export default autocomplete;

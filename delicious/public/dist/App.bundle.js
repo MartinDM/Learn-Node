@@ -85,7 +85,6 @@ function autocomplete(input, latInput, lngInput) {
         var place = dropdown.getPlace();
         var lat = place.geometry.location.lat();
         var lng = place.geometry.location.lng();
-
         latInput.value = lat;
         lngInput.value = lng;
     });
