@@ -34,11 +34,21 @@ const storeSchema = new mongoose.Schema({
     }
   } 
 });
+
+storeSchema.statics.getTagsList = function() {
+  return this.aggregate([
+    { $unwind : '$tags' },
+    // group by id, add a second property of count
+    { $group : { _id:  '$tags', count: { $sum: 1 }} },
+    // Descending
+    { $sort: { count:  -1 } }
+  ])
+}
  
 storeSchema.pre('save', async function(next) {
   if (!this.isModified('name')) {
-    next(); // skip it
-    return; // stop this function from running
+    next();
+    return; 
   }
   this.slug = slug(this.name);
   const slugRegEx = new RegExp(`^(${this.slug})((-[0-9]*$)?)$`, 'i');

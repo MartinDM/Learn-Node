@@ -85,7 +85,8 @@ exports.updateStore = async (req, res) => {
 
   // find and update store. Await it.
   const store = await Store.findOneAndUpdate({
-    _id: req.params.id }, // select the record
+    _id: req.params.id
+  }, // select the record
     req.body, // data to update it with
     // Options from Mongoose Model API
     { 
@@ -103,6 +104,14 @@ exports.updateStore = async (req, res) => {
 exports.getStoreBySlug = async (req, res, next) => {
   const store = await Store.findOne({slug: req.params.slug});
   if (!store) return next();
-  console.log(store);
   res.render('store', { title: store.name, store } );
+}
+
+exports.getStoresByTag = async (req, res) => {
+  const tag = req.params.tag; 
+  const tagQuery = tag || { $exists: true }
+  const storesPromise = Store.find({tags: tagQuery });
+  const tagsPromise = Store.getTagsList();
+  const [tags, stores] = await Promise.all([tagsPromise, storesPromise])
+  res.render('tags', { tags, title : 'Tags', tag, stores });
 }

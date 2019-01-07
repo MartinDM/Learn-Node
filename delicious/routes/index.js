@@ -2,11 +2,16 @@ const express = require('express');
 const router = express.Router();
 const storeController = require('../controllers/storeController');
 const userController = require('../controllers/userController');
+const authController = require('../controllers/authController');
 const { catchErrors } = require('../handlers/errorHandlers');
 
 router.get('/', catchErrors(storeController.getStores));
 router.get('/stores', catchErrors(storeController.getStores));
-router.get('/add', storeController.addStore);
+
+router.get('/add', authController.isLoggedIn,
+                   storeController.addStore
+);
+
 router.post('/add', storeController.upload,
                     catchErrors(storeController.resize),
                     catchErrors(storeController.createStore)
@@ -20,8 +25,26 @@ router.post('/add/:id', storeController.upload,
 router.get('/stores/:id/edit', catchErrors(storeController.editStore));
 router.get('/store/:slug', catchErrors(storeController.getStoreBySlug));
 
-router.get('/login', userController.loginForm)
-router.get('/register', userController.registerForm)
-router.post('/login', catchErrors(userController.loginHome))
+// tag or with optional tag Id
+router.get('/tags/:tag*?', catchErrors(storeController.getStoresByTag));
+
+router.get('/login', userController.loginForm);
+router.post('/login', authController.login);
+
+router.get('/register', userController.registerForm);
+/* Steps:
+Validate details
+Register them
+Log in
+*/
+router.post('/register', 
+    userController.validateRegister,
+    userController.register,
+    authController.login
+); 
+
+router.get('/logout', authController.logout)
+router.get('/account', userController.account)
+router.post('/account', userController.validateRegister, userController.postAccount)
 
 module.exports = router;
